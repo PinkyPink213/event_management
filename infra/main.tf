@@ -134,3 +134,29 @@ resource "aws_lambda_permission" "allow_apigw" {
   source_arn = "${aws_apigatewayv2_api.api.execution_arn}/*/*"
   
 }
+# -----------------------------
+# DynamoDB Table
+# -----------------------------
+resource "aws_dynamodb_table" "event_registrations" {
+  name         = "EventRegistrations"
+  billing_mode = "PAY_PER_REQUEST"
+
+  hash_key  = "eventId"
+  range_key = "email"
+
+  attribute {
+    name = "eventId"
+    type = "S"
+  }
+
+  attribute {
+    name = "email"
+    type = "S"
+  }
+
+  tags = {
+    Name        = "EventRegistrations"
+    Environment = "prod"
+  }
+}
+

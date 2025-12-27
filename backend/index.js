@@ -6,7 +6,7 @@ const {
 } = require('./src/services/eventService');
 
 exports.handler = async (event) => {
-	const method = event.httpMethod;
+	const method = event.requestContext.http.method;
 	const body = event.body ? JSON.parse(event.body) : {};
 	console.log('Current Method: ', method);
 	console.log('Current Body: ', body);
