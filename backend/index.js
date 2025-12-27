@@ -3,7 +3,7 @@ const {
 	getEvent,
 	listEvents,
 	registerEvent,
-} = require('./services/eventService');
+} = require('./src/services/eventService');
 
 exports.handler = async (event) => {
 	const method = event.httpMethod;
