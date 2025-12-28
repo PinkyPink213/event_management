@@ -5,63 +5,69 @@ export default function CreateEvent() {
 	const [name, setName] = useState('');
 	const [desc, setDesc] = useState('');
 	const [file, setFile] = useState(null);
+	const [progress, setProgress] = useState(0);
+	const [uploading, setUploading] = useState(false);
+
 	const fileInputRef = useRef(null);
 
-	const handleFileChange = (e) => {
-		const selected = e.target.files[0];
-		if (!selected) return;
-
-		// only allow images
-		if (!selected.type.startsWith('image/')) {
-			alert('Please select an image file (jpg, png, etc.)');
-			e.target.value = '';
-			return;
-		}
-
-		setFile(selected);
-	};
-
-	const removeFile = () => {
-		setFile(null);
-		fileInputRef.current.value = ''; // reset input
-	};
-
-	const submit = async () => {
-		if (!file) {
-			alert('Please select an image file');
-			return;
-		}
-
-		if (!name.trim()) {
-			alert('Please enter event name');
-			return;
-		}
+	const handleUpload = async () => {
+		if (!file) return alert('Please select a file');
+		if (!name.trim()) return alert('Event name required');
 
 		try {
+			setUploading(true);
+
+			// 1️⃣ get presigned url
 			const { uploadUrl } = await getUploadUrl(file.name);
 
-			await fetch(uploadUrl, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': file.type,
-				},
-				body: file,
-			});
+			// 2️⃣ upload to S3 with progress
+			await uploadWithProgress(uploadUrl, file);
 
+			// 3️⃣ save event
 			await createEvent({
 				name,
 				description: desc,
 				imageUrl: uploadUrl.split('?')[0],
 			});
 
-			alert('Event created successfully!');
-			setFile(null);
-			setName('');
-			setDesc('');
+			alert('Upload success!');
+			resetForm();
 		} catch (err) {
 			console.error(err);
 			alert('Upload failed');
+		} finally {
+			setUploading(false);
 		}
+	};
+
+	const uploadWithProgress = (url, file) => {
+		return new Promise((resolve, reject) => {
+			const xhr = new XMLHttpRequest();
+
+			xhr.upload.onprogress = (event) => {
+				if (event.lengthComputable) {
+					const percent = Math.round((event.loaded / event.total) * 100);
+					setProgress(percent);
+				}
+			};
+
+			xhr.onload = () => {
+				if (xhr.status === 200) resolve();
+				else reject(new Error('Upload failed'));
+			};
+
+			xhr.onerror = () => reject(new Error('Upload error'));
+
+			xhr.open('PUT', url);
+			xhr.setRequestHeader('Content-Type', file.type);
+			xhr.send(file);
+		});
+	};
+
+	const resetForm = () => {
+		setFile(null);
+		setProgress(0);
+		fileInputRef.current.value = '';
 	};
 
 	return (
@@ -69,6 +75,7 @@ export default function CreateEvent() {
 			<h2>Create Event</h2>
 
 			<input
+				type='text'
 				className='form-control mb-2'
 				placeholder='Event name'
 				value={name}
@@ -82,32 +89,37 @@ export default function CreateEvent() {
 				onChange={(e) => setDesc(e.target.value)}
 			/>
 
-			{/* File input */}
 			<input
 				type='file'
-				accept='image/*'
-				ref={fileInputRef}
 				className='form-control mb-2'
-				onChange={handleFileChange}
+				ref={fileInputRef}
+				onChange={(e) => setFile(e.target.files[0])}
+				accept='image/*'
 			/>
 
-			{/* Preview + remove */}
 			{file && (
-				<div className='mb-3'>
-					<p>
-						Selected file: <strong>{file.name}</strong>
-					</p>
-					<button
-						className='btn btn-sm btn-outline-danger'
-						onClick={removeFile}
-					>
-						Remove file ✖
-					</button>
+				<div className='mb-2'>
+					<small>{file.name}</small>
 				</div>
 			)}
 
-			<button className='btn btn-primary' onClick={submit}>
-				Create Event
+			{uploading && (
+				<div className='progress mb-2'>
+					<div
+						className='progress-bar progress-bar-striped progress-bar-animated'
+						style={{ width: `${progress}%` }}
+					>
+						{progress}%
+					</div>
+				</div>
+			)}
+
+			<button
+				className='btn btn-primary'
+				disabled={uploading}
+				onClick={handleUpload}
+			>
+				{uploading ? 'Uploading...' : 'Create Event'}
 			</button>
 		</div>
 	);
