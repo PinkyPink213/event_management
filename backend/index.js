@@ -14,7 +14,7 @@ exports.handler = async (event) => {
 	console.log('Current Body: ', body);
 	try {
 		const { routeKey, pathParameters, body } = event;
-
+		console.log('Route Key: ', routeKey);
 		switch (routeKey) {
 			case 'POST /upload-url': {
 				const { fileName } = body;
