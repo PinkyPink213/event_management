@@ -37,19 +37,7 @@ resource "aws_iam_role_policy" "ddb" {
   })
 }
 
-# -----------------------------
-# DynamoDB
-# -----------------------------
-resource "aws_dynamodb_table" "events" {
-  name         = "Events"
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "eventId"
 
-  attribute {
-    name = "eventId"
-    type = "S"
-  }
-}
 
 # -----------------------------
 # Lambda Package
@@ -135,8 +123,18 @@ resource "aws_lambda_permission" "allow_apigw" {
   
 }
 # -----------------------------
-# DynamoDB Table
+# DynamoDB
 # -----------------------------
+resource "aws_dynamodb_table" "events" {
+  name         = "Events"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "eventId"
+
+  attribute {
+    name = "eventId"
+    type = "S"
+  }
+}
 resource "aws_dynamodb_table" "event_registrations" {
   name         = "EventRegistrations"
   billing_mode = "PAY_PER_REQUEST"

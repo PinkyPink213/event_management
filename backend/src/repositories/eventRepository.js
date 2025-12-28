@@ -7,6 +7,7 @@ async function createEvent(data) {
 	const item = {
 		eventId: uuidv4(),
 		name: data.name,
+		description: data.description || '', //
 		capacity: data.capacity,
 		registeredCount: 0,
 		createdAt: new Date().toISOString(),

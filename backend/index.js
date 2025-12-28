@@ -3,6 +3,7 @@ const {
 	getEvent,
 	listEvents,
 	registerEvent,
+	deleteEvent,
 } = require('./src/services/eventService');
 
 exports.handler = async (event) => {
@@ -38,6 +39,13 @@ exports.handler = async (event) => {
 					body: JSON.stringify(
 						await registerEvent(pathParameters.id, JSON.parse(body).email)
 					),
+				};
+
+			case 'DELETE /events/{id}':
+				await deleteEvent(pathParameters.id);
+				return {
+					statusCode: 200,
+					body: JSON.stringify({ message: 'Event deleted successfully' }),
 				};
 
 			default:

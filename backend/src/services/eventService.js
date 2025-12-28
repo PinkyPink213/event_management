@@ -36,10 +36,53 @@ async function registerEvent(eventId, email) {
 
 	return { message: 'Registered successfully' };
 }
+async function deleteEvent(eventId) {
+	await dynamoDB
+		.delete({
+			TableName: 'Events',
+			Key: { eventId },
+		})
+		.promise();
+}
+
+async function deleteEventRegistrations(eventId) {
+	// ดึง registration ทั้งหมดของ event นี้ก่อน
+	const result = await dynamoDB
+		.query({
+			TableName: 'EventRegistrations',
+			KeyConditionExpression: 'eventId = :eventId',
+			ExpressionAttributeValues: {
+				':eventId': eventId,
+			},
+		})
+		.promise();
+
+	// ลบทีละรายการ
+	const deleteRequests = result.Items.map((item) => ({
+		DeleteRequest: {
+			Key: {
+				eventId: item.eventId,
+				email: item.email,
+			},
+		},
+	}));
+
+	if (deleteRequests.length === 0) return;
+
+	await dynamoDB
+		.batchWrite({
+			RequestItems: {
+				EventRegistrations: deleteRequests,
+			},
+		})
+		.promise();
+}
 
 module.exports = {
 	createEvent,
 	getEvent,
 	listEvents,
 	registerEvent,
+	deleteEvent,
+	deleteEventRegistrations,
 };
