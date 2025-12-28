@@ -20,11 +20,16 @@ export async function createEvent(data) {
 	return res.json();
 }
 
-export async function getUploadUrl(fileName) {
-	const res = await fetch(`${API_BASE}/upload-url`, {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ fileName }),
+export async function deleteEvent(id) {
+	alert(`Deleting event with ID: ${API_BASE}/events/${id}`);
+
+	const res = await fetch(`${API_BASE}/events/${id}`, {
+		method: 'DELETE',
 	});
+
+	if (!res.ok) {
+		throw new Error('Failed to delete event');
+	}
+
 	return res.json();
 }

@@ -1,128 +1,113 @@
-import { useState, useRef } from 'react';
-import { createEvent, getUploadUrl } from '../api/api';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { createEvent } from '../api/api';
 
 export default function CreateEvent() {
 	const [name, setName] = useState('');
 	const [desc, setDesc] = useState('');
-	const [file, setFile] = useState(null);
-	const [progress, setProgress] = useState(0);
-	const [uploading, setUploading] = useState(false);
+	const [imageUrl, setImageUrl] = useState('');
+	const [capacity, setCapacity] = useState('');
+	const [loading, setLoading] = useState(false);
 
-	const fileInputRef = useRef(null);
+	const navigate = useNavigate();
 
-	const handleUpload = async () => {
-		if (!file) return alert('Please select a file');
-		if (!name.trim()) return alert('Event name required');
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+
+		if (!name.trim()) return alert('Event name is required');
+		if (!desc.trim()) return alert('Description is required');
+		if (!imageUrl.trim()) return alert('Image URL is required');
+		if (!capacity || Number(capacity) <= 0)
+			return alert('Capacity must be greater than 0');
 
 		try {
-			setUploading(true);
+			setLoading(true);
 
-			// 1️⃣ get presigned url
-			const { uploadUrl } = await getUploadUrl(file.name);
-
-			// 2️⃣ upload to S3 with progress
-			await uploadWithProgress(uploadUrl, file);
-
-			// 3️⃣ save event
 			await createEvent({
 				name,
 				description: desc,
-				imageUrl: uploadUrl.split('?')[0],
+				imageUrl,
+				capacity: Number(capacity),
 			});
 
-			alert('Upload success!');
-			resetForm();
+			alert('Event created successfully!');
+			navigate('/');
 		} catch (err) {
 			console.error(err);
-			alert('Upload failed');
+			alert('Failed to create event');
 		} finally {
-			setUploading(false);
+			setLoading(false);
 		}
 	};
 
-	const uploadWithProgress = (url, file) => {
-		return new Promise((resolve, reject) => {
-			const xhr = new XMLHttpRequest();
-
-			xhr.upload.onprogress = (event) => {
-				if (event.lengthComputable) {
-					const percent = Math.round((event.loaded / event.total) * 100);
-					setProgress(percent);
-				}
-			};
-
-			xhr.onload = () => {
-				if (xhr.status === 200) {
-					resolve();
-				} else {
-					reject(new Error(`Upload failed with status ${xhr.status}`));
-				}
-			};
-
-			xhr.onerror = () => reject(new Error('Upload error'));
-
-			xhr.open('PUT', url);
-
-			xhr.send(file);
-		});
-	};
-
-	const resetForm = () => {
-		setFile(null);
-		setProgress(0);
-		fileInputRef.current.value = '';
-	};
-
 	return (
-		<div className='container'>
-			<h2>Create Event</h2>
+		<div className='container' style={{ maxWidth: 500 }}>
+			<h2 className='mb-3'>Create Event</h2>
 
-			<input
-				type='text'
-				className='form-control mb-2'
-				placeholder='Event name'
-				value={name}
-				onChange={(e) => setName(e.target.value)}
-			/>
+			<form onSubmit={handleSubmit}>
+				{/* Event Name */}
+				<label className='form-label'>
+					Event Name <span style={{ color: 'red' }}>*</span>
+				</label>
+				<input
+					type='text'
+					className='form-control mb-3'
+					value={name}
+					required
+					onChange={(e) => setName(e.target.value)}
+				/>
 
-			<textarea
-				className='form-control mb-2'
-				placeholder='Description'
-				value={desc}
-				onChange={(e) => setDesc(e.target.value)}
-			/>
+				{/* Description */}
+				<label className='form-label'>
+					Description <span style={{ color: 'red' }}>*</span>
+				</label>
+				<textarea
+					className='form-control mb-3'
+					value={desc}
+					required
+					onChange={(e) => setDesc(e.target.value)}
+				/>
 
-			<input
-				type='file'
-				className='form-control mb-2'
-				ref={fileInputRef}
-				onChange={(e) => setFile(e.target.files[0])}
-				accept='image/*'
-			/>
+				{/* Image URL */}
+				<label className='form-label'>
+					Image URL <span style={{ color: 'red' }}>*</span>
+				</label>
+				<input
+					type='url'
+					className='form-control mb-3'
+					placeholder='https://example.com/image.jpg'
+					value={imageUrl}
+					required
+					onChange={(e) => setImageUrl(e.target.value)}
+				/>
 
-			{file && (
-				<div className='mb-2'>
-					<small>{file.name}</small>
-				</div>
-			)}
+				{/* Capacity */}
+				<label className='form-label'>
+					Capacity <span style={{ color: 'red' }}>*</span>
+				</label>
+				<input
+					type='number'
+					className='form-control mb-4'
+					min='1'
+					value={capacity}
+					required
+					onChange={(e) => setCapacity(e.target.value)}
+				/>
 
-			{uploading && (
-				<div className='progress mb-2'>
-					<div
-						className='progress-bar progress-bar-striped progress-bar-animated'
-						style={{ width: `${progress}%` }}
-					>
-						{progress}%
-					</div>
-				</div>
-			)}
-
+				<button
+					type='submit'
+					className='btn btn-primary w-100'
+					disabled={loading}
+				>
+					{loading ? 'Creating...' : 'Create Event'}
+				</button>
+			</form>
 			<button
-				className='btn btn-primary'
-				disabled={uploading}
-				onClick={handleUpload}
+				type='button'
+				className='btn btn-secondary mb-3 w-100 mt-3'
+				onClick={() => navigate('/')}
 			>
-				{uploading ? 'Uploading...' : 'Create Event'}
+				← Back to Home
 			</button>
 		</div>
 	);
