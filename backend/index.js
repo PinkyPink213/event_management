@@ -4,8 +4,8 @@ const {
 	listEvents,
 	registerEvent,
 	deleteEvent,
-	getUploadUrl,
 } = require('./src/services/eventService');
+const { getUploadUrl } = require('./src/services/S3Service');
 
 exports.handler = async (event) => {
 	const method = event.requestContext.http.method;

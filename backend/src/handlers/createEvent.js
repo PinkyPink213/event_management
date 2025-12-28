@@ -1,7 +1,10 @@
 const { createEvent } = require('../services/eventService');
-const { response } = require('../utils/response');
+const { response, preflight } = require('../utils/response');
 
 exports.handler = async (event) => {
+	if (event.requestContext?.http?.method === 'OPTIONS') {
+		return preflight();
+	}
 	try {
 		// console.log('RAW EVENT:', JSON.stringify(event));
 		let body = {};

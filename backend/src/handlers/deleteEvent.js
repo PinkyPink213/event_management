@@ -4,6 +4,9 @@ const {
 } = require('./services/eventService');
 
 exports.handler = async (event) => {
+	if (event.requestContext?.http?.method === 'OPTIONS') {
+		return preflight();
+	}
 	try {
 		const eventId = event.pathParameters?.id;
 		if (!eventId) {

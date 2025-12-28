@@ -1,11 +1,19 @@
-const response = (statusCode, body) => {
-	return {
-		statusCode,
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify(body),
-	};
+const corsHeaders = {
+	'Access-Control-Allow-Origin': '*',
+	'Access-Control-Allow-Headers': 'Content-Type',
+	'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
 };
 
-module.exports = { response };
+const response = (statusCode, body = {}) => ({
+	statusCode,
+	headers: corsHeaders,
+	body: JSON.stringify(body),
+});
+
+const preflight = () => ({
+	statusCode: 200,
+	headers: corsHeaders,
+	body: '',
+});
+
+module.exports = { response, preflight };
