@@ -126,6 +126,12 @@ resource "aws_apigatewayv2_route" "register_event" {
   target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }
 
+resource "aws_apigatewayv2_route" "upload_url" {
+  api_id    = aws_apigatewayv2_api.api.id
+  route_key = "POST /upload-url"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+}
+
 # -----------------------------
 # Stage
 # -----------------------------
