@@ -8,6 +8,7 @@ async function createEvent(data) {
 		eventId: uuidv4(),
 		name: data.name,
 		description: data.description || '', //
+		imageUrl: data.imageUrl || null,
 		capacity: data.capacity,
 		registeredCount: 0,
 		createdAt: new Date().toISOString(),

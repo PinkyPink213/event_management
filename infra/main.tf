@@ -37,7 +37,24 @@ resource "aws_iam_role_policy" "ddb" {
   })
 }
 
+resource "aws_iam_role_policy" "s3_access" {
+  name = "lambda-s3-access"
+  role = aws_iam_role.lambda_role.id
 
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:PutObject",
+          "s3:GetObject"
+        ]
+        Resource = "arn:aws:s3:::event-images-prod/*"
+      }
+    ]
+  })
+}
 
 # -----------------------------
 # Lambda Package
@@ -59,6 +76,13 @@ resource "aws_lambda_function" "backend" {
 
   filename         = data.archive_file.lambda_zip.output_path
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
+  environment {
+    variables = {
+      EVENTS_TABLE    = aws_dynamodb_table.events.name
+      EVENT_REG_TABLE = aws_dynamodb_table.event_registrations.name
+      BUCKET_NAME = "event-images-prod"
+    }
+  }
 }
 
 # -----------------------------

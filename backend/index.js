@@ -4,6 +4,7 @@ const {
 	listEvents,
 	registerEvent,
 	deleteEvent,
+	getUploadUrl,
 } = require('./src/services/eventService');
 
 exports.handler = async (event) => {
@@ -15,6 +16,16 @@ exports.handler = async (event) => {
 		const { routeKey, pathParameters, body } = event;
 
 		switch (routeKey) {
+			case 'POST /upload-url': {
+				const { fileName } = body;
+				const uploadUrl = await getUploadUrl(fileName);
+
+				return {
+					statusCode: 200,
+					body: JSON.stringify({ uploadUrl }),
+				};
+			}
+
 			case 'POST /events':
 				return {
 					statusCode: 201,
