@@ -91,6 +91,12 @@ resource "aws_lambda_function" "backend" {
 resource "aws_apigatewayv2_api" "api" {
   name          = "event-api"
   protocol_type = "HTTP"
+  cors_configuration {
+    allow_origins = ["*"]
+    allow_methods = ["GET", "POST", "OPTIONS","DELETE"]
+    allow_headers = ["Content-Type"]
+    max_age       = 3600
+  }
 }
 
 resource "aws_apigatewayv2_integration" "lambda" {
