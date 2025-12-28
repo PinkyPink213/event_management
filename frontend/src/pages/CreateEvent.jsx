@@ -40,6 +40,33 @@ export default function CreateEvent() {
 		}
 	};
 
+	const uploadWithProgress = (url, file) => {
+		return new Promise((resolve, reject) => {
+			const xhr = new XMLHttpRequest();
+
+			xhr.upload.onprogress = (event) => {
+				if (event.lengthComputable) {
+					const percent = Math.round((event.loaded / event.total) * 100);
+					setProgress(percent);
+				}
+			};
+
+			xhr.onload = () => {
+				if (xhr.status === 200) {
+					resolve();
+				} else {
+					reject(new Error(`Upload failed with status ${xhr.status}`));
+				}
+			};
+
+			xhr.onerror = () => reject(new Error('Upload error'));
+
+			xhr.open('PUT', url);
+
+			xhr.send(file);
+		});
+	};
+
 	const resetForm = () => {
 		setFile(null);
 		setProgress(0);
