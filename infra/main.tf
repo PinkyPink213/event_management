@@ -193,4 +193,17 @@ resource "aws_dynamodb_table" "event_registrations" {
     Environment = "prod"
   }
 }
+# -----------------------------
+# S3 Bucket
+# -----------------------------
+resource "aws_s3_bucket_cors_configuration" "cors" {
+  bucket = aws_s3_bucket.upload_bucket.id
 
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET", "PUT", "POST"]
+    allowed_origins = ["http://localhost:5173"]
+    expose_headers  = []
+    max_age_seconds = 3000
+  }
+}
