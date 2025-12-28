@@ -197,7 +197,7 @@ resource "aws_dynamodb_table" "event_registrations" {
 # S3 Bucket
 # -----------------------------
 resource "aws_s3_bucket_cors_configuration" "cors" {
-  bucket = aws_s3_bucket.upload_bucket.id
+  bucket = "my-terraform-event-states"
 
   cors_rule {
     allowed_headers = ["*"]
