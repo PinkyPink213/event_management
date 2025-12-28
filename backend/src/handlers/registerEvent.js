@@ -2,7 +2,7 @@ const { registerEvent } = require('../services/eventService');
 const { response } = require('../utils/response');
 
 exports.handler = async (event) => {
-	if (event.requestContext?.http?.method === 'OPTIONS') {
+	if (event.httpMethod === 'OPTIONS') {
 		return preflight();
 	}
 	try {

@@ -4,7 +4,7 @@ const {
 } = require('./services/eventService');
 
 exports.handler = async (event) => {
-	if (event.requestContext?.http?.method === 'OPTIONS') {
+	if (event.httpMethod === 'OPTIONS') {
 		return preflight();
 	}
 	try {
