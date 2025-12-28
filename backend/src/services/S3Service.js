@@ -4,6 +4,7 @@ const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const s3 = new S3Client({ region: 'ap-southeast-1' });
 
 async function getUploadUrl(fileName) {
+	console.log('File Name: ', fileName);
 	const command = new PutObjectCommand({
 		Bucket: process.env.BUCKET_NAME,
 		Key: `events/${fileName}`,
