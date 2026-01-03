@@ -132,9 +132,9 @@ resource "aws_apigatewayv2_route" "register_event" {
   target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }
 
-resource "aws_apigatewayv2_route" "upload_url" {
+resource "aws_apigatewayv2_route" "delete_event" {
   api_id    = aws_apigatewayv2_api.api.id
-  route_key = "POST /upload-url"
+  route_key = "DELETE /events/{id}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }
 
@@ -191,19 +191,5 @@ resource "aws_dynamodb_table" "event_registrations" {
   tags = {
     Name        = "EventRegistrations"
     Environment = "prod"
-  }
-}
-# -----------------------------
-# S3 Bucket
-# -----------------------------
-resource "aws_s3_bucket_cors_configuration" "cors" {
-  bucket = "my-terraform-event-states"
-
-  cors_rule {
-    allowed_headers = ["*"]
-    allowed_methods = ["GET", "PUT", "POST"]
-    allowed_origins = ["http://localhost:5173"]
-    expose_headers  = ["ETag"]
-    max_age_seconds = 3000
   }
 }

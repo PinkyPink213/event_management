@@ -1,5 +1,5 @@
 const { createEvent } = require('../services/eventService');
-const { response, preflight } = require('../utils/response');
+const { response } = require('../utils/response');
 
 exports.handler = async (event) => {
 	try {

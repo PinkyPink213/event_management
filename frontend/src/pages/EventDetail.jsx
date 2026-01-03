@@ -1,11 +1,11 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getEvent } from '../api/api';
-
+import { useNavigate } from 'react-router-dom';
 export default function EventDetail() {
 	const { id } = useParams();
 	const [event, setEvent] = useState(null);
-
+	const navigate = useNavigate();
 	useEffect(() => {
 		getEvent(id).then(setEvent);
 	}, [id]);
@@ -39,6 +39,13 @@ export default function EventDetail() {
 					</div>
 				</div>
 			</div>
+			<button
+				type='button'
+				className='btn btn-secondary mb-3 w-100 mt-3'
+				onClick={() => navigate('/')}
+			>
+				← Back to Home
+			</button>
 		</div>
 	);
 }

@@ -12,20 +12,11 @@ exports.handler = async (event) => {
 	const body = event.body ? JSON.parse(event.body) : {};
 	console.log('Current Method: ', method);
 	console.log('Current Body: ', body);
-	const fileName = body.fileName;
+
 	try {
 		const { routeKey, pathParameters, body } = event;
 		console.log('Route Key: ', routeKey);
 		switch (routeKey) {
-			case 'POST /upload-url': {
-				const uploadUrl = await getUploadUrl(fileName);
-
-				return {
-					statusCode: 200,
-					body: JSON.stringify({ uploadUrl }),
-				};
-			}
-
 			case 'POST /events':
 				return {
 					statusCode: 201,
